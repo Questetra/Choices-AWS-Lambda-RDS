@@ -15,3 +15,7 @@ variable "db_cluster_identifier" {}
 variable "db_username" {}
 
 variable "db_instance_identifier" {}
+
+## used in lambda.tf
+
+variable "lambda_invocation_arn" {}
