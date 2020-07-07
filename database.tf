@@ -1,6 +1,7 @@
 resource "aws_rds_cluster" "sample-database-1" {
     cluster_identifier      = var.db_cluster_identifier
     master_username         = var.db_username
+    master_password         = var.db_password // 既存のリソースに対して指定すると変更されてしまう
     storage_encrypted       = true
     copy_tags_to_snapshot   = true
     skip_final_snapshot     = true
@@ -16,7 +17,6 @@ resource "aws_db_instance" "sample-database-1-instance-1" {
     instance_class            = "db.t2.small"
     publicly_accessible       = true
     vpc_security_group_ids    = [aws_security_group.default-vpc-sg.id]
-    // db_subnet_group_name      = "default-vpc-4e62ba25"
     storage_encrypted         = true
     monitoring_interval       = 60
     performance_insights_enabled = true

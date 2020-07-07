@@ -1,21 +1,37 @@
-## used in provider.tf
-
+####################
+#        AWS       #
+####################
 variable "aws_region" {}
 
-## used in network.tf
-
-variable "vpc_cidr_block" {}
+####################
+#        VPC       #
+####################
+variable "vpc_cidr_block" {
+    default = "10.0.0.0/16"
+}
 
 variable "my_ip" {}
 
-## used in database.tf
+####################
+#        DB        #
+####################
 
 variable "db_cluster_identifier" {}
 
 variable "db_username" {}
 
+variable "db_password" {}
+
 variable "db_instance_identifier" {}
 
-## used in lambda.tf
+variable "db_name" {}
 
-variable "lambda_invocation_arn" {}
+variable "db_endpoint" {}
+
+
+
+variable "lambda_source_code_hash" {}
+
+variable "lambda_role_name" {
+    default = "myRdsFunction-role"
+}
