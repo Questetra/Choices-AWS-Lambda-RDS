@@ -27,20 +27,27 @@ resource "aws_iam_role_policy_attachment" "lambda-vpc-attach" {
     role       = aws_iam_role.myRdsFunction-role.name
 }
 
+data "archive_file" "lambda-src-zip" {
+  type        = "zip"
+  source_dir = "lambda-src"
+  output_path = "lambda/myRdsFunction.zip"
+}
+
 resource "aws_lambda_function" "myRdsFunction" {
-    function_name                  = "myRdsFunction"
+    function_name                  = var.lambda_function_name
     handler                        = "index.handler"
     runtime                        = "nodejs12.x"
     role                           = aws_iam_role.myRdsFunction-role.arn
-    source_code_hash               = var.lambda_source_code_hash
+    source_code_hash               = filebase64sha256(data.archive_file.lambda-src-zip.output_path)
     timeout                        = 30
 
     environment {
         variables = {
             "db"       = var.db_name
-            "endpoint" = var.db_endpoint
+            "endpoint" = aws_rds_cluster.sample-database-1.reader_endpoint // RDS Proxy を使用する場合は変更する
             "password" = var.db_password
             "user"     = var.db_username
+            "table"    = var.db_table
         }
     }
 
@@ -49,22 +56,22 @@ resource "aws_lambda_function" "myRdsFunction" {
             aws_security_group.default-vpc-sg.id,
         ]
         subnet_ids         = [
-            aws_subnet.default-subnet-2a.id,
-            aws_subnet.default-subnet-2b.id,
-            aws_subnet.default-subnet-2c.id,
+            aws_subnet.subnet-2a.id,
+            aws_subnet.subnet-2b.id,
+            aws_subnet.subnet-2c.id,
         ]
     }
 }
 
 resource "aws_api_gateway_rest_api" "MyRdsFunction-API" {
-    name                     = "myRdsFunction-API"
+    name                     = var.api_name
     description              = "Created by AWS Lambda"
 }
 
 resource "aws_api_gateway_resource" "MyRdsFunction-API-Resource" {
     rest_api_id = aws_api_gateway_rest_api.MyRdsFunction-API.id
     parent_id   = aws_api_gateway_rest_api.MyRdsFunction-API.root_resource_id
-    path_part   = "myRdsFunction"
+    path_part   = var.api_path
 }
 
 resource "aws_api_gateway_method" "get" {

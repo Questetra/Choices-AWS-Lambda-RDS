@@ -1,7 +1,7 @@
 resource "aws_rds_cluster" "sample-database-1" {
     cluster_identifier      = var.db_cluster_identifier
     master_username         = var.db_username
-    master_password         = var.db_password // 既存のリソースに対して指定すると変更されてしまう
+    master_password         = var.db_password
     storage_encrypted       = true
     copy_tags_to_snapshot   = true
     skip_final_snapshot     = true
@@ -14,7 +14,7 @@ resource "aws_db_instance" "sample-database-1-instance-1" {
     storage_type              = "aurora"
     engine                    = "aurora"
     engine_version            = "5.6.10a"
-    instance_class            = "db.t2.small"
+    instance_class            = var.db_instance_size
     publicly_accessible       = true
     vpc_security_group_ids    = [aws_security_group.default-vpc-sg.id]
     storage_encrypted         = true

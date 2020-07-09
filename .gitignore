@@ -2,3 +2,6 @@
 *.tfstate
 *.tfstate.*
 *.tfvars
+
+lambda/
+lambda-src/node_modules/
