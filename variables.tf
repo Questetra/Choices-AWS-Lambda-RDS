@@ -91,3 +91,12 @@ variable "api_path" {
     description = "Path to the API."
     default = "myRdsFunction"
 }
+
+// In order to deploy the API to a certain stage:
+/*
+variable "api_stage" {
+    type = string
+    description = "Name of the stage to deploy the API."
+    default = "default"
+}
+*/

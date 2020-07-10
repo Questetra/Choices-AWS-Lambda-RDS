@@ -90,3 +90,35 @@ resource "aws_api_gateway_integration" "MyRdsFunction-Integration" {
     content_handling        = "CONVERT_TO_TEXT"
     uri                     = aws_lambda_function.myRdsFunction.invoke_arn
 }
+
+// In case of deploying the API to default stage:
+data "aws_region" "current" {}
+
+output "api_url" {
+    value = "https://${aws_api_gateway_rest_api.MyRdsFunction-API.id}.execute-api.${data.aws_region.current.name}.amazonaws.com/default/${aws_api_gateway_resource.MyRdsFunction-API-Resource.path_part}"
+}
+
+// In order to deploy the API to a certain stage:
+/*
+// FYI: aws_api_gateway_deployment does not support import command.
+resource "aws_api_gateway_deployment" "MyRdsFunction-Deployment" {
+  depends_on = [aws_api_gateway_integration.MyRdsFunction-Integration]
+
+  rest_api_id = aws_api_gateway_rest_api.MyRdsFunction-API.id
+  stage_name  = var.api_stage
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_api_gateway_stage" "default" {
+    stage_name    = var.api_stage
+    rest_api_id   = aws_api_gateway_rest_api.MyRdsFunction-API.id
+    deployment_id = aws_api_gateway_deployment.MyRdsFunction-Deployment.id
+}
+
+output "api_url" {
+    value =  "${aws_api_gateway_stage.default.invoke_url}/${aws_api_gateway_resource.MyRdsFunction-API-Resource.path_part}"
+}
+*/

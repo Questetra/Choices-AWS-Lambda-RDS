@@ -59,3 +59,7 @@ resource "aws_rds_cluster_parameter_group" "paramgroup-for-utf8" {
         value        = "1"
     }
 }
+
+output "db_endpoint" {
+    value = aws_rds_cluster.sample-database-1.reader_endpoint
+}
