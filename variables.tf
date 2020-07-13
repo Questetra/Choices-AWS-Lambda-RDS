@@ -24,6 +24,12 @@ variable "my_ip" {
 #        DB        #
 ####################
 
+variable "db_subnet_group" {
+    type = string
+    description = "Name of DB subnet group."
+    default = "db-subnet-group"
+}
+
 variable "db_cluster_identifier" {
     type = string
     description = "Name of DB cluster."
@@ -51,6 +57,12 @@ variable "db_instance_size" {
     type = string
     description = "Size of DB instance."
     default = "db.t2.small"
+}
+
+variable "db_param_group" {
+    type = string
+    description = "Name of DB cluster param group for UTF-8 encoding."
+    default = "paramgroup-for-utf8"
 }
 
 variable "db_name" {
@@ -92,11 +104,8 @@ variable "api_path" {
     default = "myRdsFunction"
 }
 
-// In order to deploy the API to a certain stage:
-/*
 variable "api_stage" {
     type = string
     description = "Name of the stage to deploy the API."
     default = "default"
 }
-*/

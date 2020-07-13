@@ -29,7 +29,7 @@ db_password = "password1234"
 
 ディレクトリ内で `terraform init` を実行してワークスペースとして初期化し、
 `terraform plan -var-file=vars.tfvars` で変更内容を確認します。
-変更内容に問題がなければ、`tarraform apply` で変更を実行します。
+変更内容に問題がなければ、`tarraform apply -var-file=vars.tfvars` で変更を実行します。
 
 ## データ形式
 データベースには `value` と `display` の２つの列からなるテーブルを作成します。

@@ -40,11 +40,12 @@ resource "aws_lambda_function" "myRdsFunction" {
     role                           = aws_iam_role.myRdsFunction-role.arn
     source_code_hash               = filebase64sha256(data.archive_file.lambda-src-zip.output_path)
     timeout                        = 30
+    filename                       = data.archive_file.lambda-src-zip.output_path
 
     environment {
         variables = {
             "db"       = var.db_name
-            "endpoint" = aws_rds_cluster.sample-database-1.reader_endpoint // RDS Proxy を使用する場合は変更する
+            "endpoint" = aws_rds_cluster.db-cluster.endpoint // RDS Proxy を使用する場合は変更する
             "password" = var.db_password
             "user"     = var.db_username
             "table"    = var.db_table
@@ -53,19 +54,30 @@ resource "aws_lambda_function" "myRdsFunction" {
 
     vpc_config {
         security_group_ids = [
-            aws_security_group.default-vpc-sg.id,
+            aws_default_security_group.sg.id,
         ]
         subnet_ids         = [
-            aws_subnet.subnet-2a.id,
-            aws_subnet.subnet-2b.id,
-            aws_subnet.subnet-2c.id,
+            aws_subnet.subnet-a.id,
+            aws_subnet.subnet-b.id,
+            aws_subnet.subnet-c.id,
         ]
     }
+}
+
+resource "aws_lambda_permission" "invoke" {
+    action        = "lambda:InvokeFunction"
+    function_name = aws_lambda_function.myRdsFunction.arn
+    principal     = "apigateway.amazonaws.com"
+    source_arn    = "${aws_api_gateway_rest_api.MyRdsFunction-API.execution_arn}/*/GET/${var.lambda_function_name}"
 }
 
 resource "aws_api_gateway_rest_api" "MyRdsFunction-API" {
     name                     = var.api_name
     description              = "Created by AWS Lambda"
+
+    endpoint_configuration {
+        types = ["REGIONAL"]
+    }
 }
 
 resource "aws_api_gateway_resource" "MyRdsFunction-API-Resource" {
@@ -81,6 +93,17 @@ resource "aws_api_gateway_method" "get" {
     authorization = "NONE"
 }
 
+resource "aws_api_gateway_method_response" "response_200" {
+    http_method         = aws_api_gateway_method.get.http_method
+    resource_id         = aws_api_gateway_resource.MyRdsFunction-API-Resource.id
+    response_models     = {
+        "application/json" = "Empty"
+    }
+    response_parameters = {}
+    rest_api_id         = aws_api_gateway_rest_api.MyRdsFunction-API.id
+    status_code         = "200"
+}
+
 resource "aws_api_gateway_integration" "MyRdsFunction-Integration" {
     rest_api_id             = aws_api_gateway_rest_api.MyRdsFunction-API.id
     resource_id             = aws_api_gateway_resource.MyRdsFunction-API-Resource.id
@@ -91,16 +114,18 @@ resource "aws_api_gateway_integration" "MyRdsFunction-Integration" {
     uri                     = aws_lambda_function.myRdsFunction.invoke_arn
 }
 
-// In case of deploying the API to default stage:
-data "aws_region" "current" {}
+resource "aws_api_gateway_integration_response" "MyRdsFunction-IntegrationResponse" {
+    rest_api_id = aws_api_gateway_rest_api.MyRdsFunction-API.id
+    resource_id = aws_api_gateway_resource.MyRdsFunction-API-Resource.id
+    http_method = aws_api_gateway_method.get.http_method
+    status_code = aws_api_gateway_method_response.response_200.status_code
+    response_templates  = {
+        "application/json" = ""
+    }
 
-output "api_url" {
-    value = "https://${aws_api_gateway_rest_api.MyRdsFunction-API.id}.execute-api.${data.aws_region.current.name}.amazonaws.com/default/${aws_api_gateway_resource.MyRdsFunction-API-Resource.path_part}"
+    depends_on = [aws_api_gateway_integration.MyRdsFunction-Integration]
 }
 
-// In order to deploy the API to a certain stage:
-/*
-// FYI: aws_api_gateway_deployment does not support import command.
 resource "aws_api_gateway_deployment" "MyRdsFunction-Deployment" {
   depends_on = [aws_api_gateway_integration.MyRdsFunction-Integration]
 
@@ -112,13 +137,8 @@ resource "aws_api_gateway_deployment" "MyRdsFunction-Deployment" {
   }
 }
 
-resource "aws_api_gateway_stage" "default" {
-    stage_name    = var.api_stage
-    rest_api_id   = aws_api_gateway_rest_api.MyRdsFunction-API.id
-    deployment_id = aws_api_gateway_deployment.MyRdsFunction-Deployment.id
-}
+data "aws_region" "current" {}
 
 output "api_url" {
-    value =  "${aws_api_gateway_stage.default.invoke_url}/${aws_api_gateway_resource.MyRdsFunction-API-Resource.path_part}"
+    value = "https://${aws_api_gateway_rest_api.MyRdsFunction-API.id}.execute-api.${data.aws_region.current.name}.amazonaws.com/${var.api_stage}/${var.api_path}"
 }
-*/
