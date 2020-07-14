@@ -31,8 +31,28 @@ db_password = "password1234"
 `terraform plan -var-file=vars.tfvars` で変更内容を確認します。
 変更内容に問題がなければ、`tarraform apply -var-file=vars.tfvars` で変更を実行します。
 
+次のように表示されると AWS のリソース作成は完了です。
+```
+Apply complete! Resources: 22 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+api_url = {API の エンドポイント}
+db_endpoint = {データベースのエンドポイント}
+```
+
+出力されるデータベースのエンドポイントを使ってデータベースに接続し、後述のデータ形式にしたがってテーブルを作成します。
+Questetra BPM Suite の「検索セレクトボックス（表示名は「検索セレクト」）」の「選択肢種別」で「HTTP 経由で取得した選択肢」を選択し、
+「選択肢データの URL」に先ほど作成した API のエンドポイントを入力します。
+
+## データベースへの接続
+データベースへの接続には次の mysql コマンドを使います（コマンドの後、.tfvars ファイルで設定したマスターパスワードを入力します）。
+`mysql -h {データベースのエンドポイント} -P 3306 -u admin -p`
+3306 はポート番号、admin はマスターユーザー名です。.tfvars ファイルでマスターユーザー名を設定した場合は、設定したユーザー名を使用します。
+
 ## データ形式
 データベースには `value` と `display` の２つの列からなるテーブルを作成します。
+value は選択肢ID、display は表示ラベルです。
 
 テーブル作成例
 ```
