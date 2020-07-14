@@ -37,7 +37,7 @@ Apply complete! Resources: 22 added, 0 changed, 0 destroyed.
 
 Outputs:
 
-api_url = {API の エンドポイント}
+api_url = {API のエンドポイント}
 db_endpoint = {データベースのエンドポイント}
 ```
 
