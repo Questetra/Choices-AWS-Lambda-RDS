@@ -10,11 +10,12 @@ RDS Proxy は現時点では Terraform に対応していないため、RDS Prox
 以下のものが必要です。
 * [Terraform クライアント](https://www.terraform.io/downloads.html)
 * [AWS クライアント](https://aws.amazon.com/cli/)
-* [npm](https://www.npmjs.com/)
+* [npm](https://www.npmjs.com/) コマンド
+* [mysql](https://www.mysql.com/) コマンド
 
 AWS の認証情報は `aws configure` コマンドで設定するか、provider.tf ファイル内の provider ブロック内に記載します（[参考](https://www.terraform.io/docs/providers/aws/index.html#static-credentials)）。
 
-lambda-src ディレクトリ内で `npm install` を実行し、必要なパッケージをインストールしておきます（node_modulesディレクトリが作成されます）。
+lambda-src ディレクトリ内で `npm install` を実行し、必要なパッケージをインストールしておきます（node_modules ディレクトリが作成されます）。
 
 ## 使い方
 同じディレクトリに .tfvars ファイル（たとえば vars.tfvars）を作成し、 variables.tf で定義されている変数の値を指定します。
@@ -41,12 +42,12 @@ api_url = {API のエンドポイント}
 db_endpoint = {データベースのエンドポイント}
 ```
 
-出力されるデータベースのエンドポイントを使ってデータベースに接続し、後述のデータ形式にしたがってテーブルを作成します。
+出力されたデータベースのエンドポイントを使ってデータベースに接続し、後述のデータ形式にしたがってテーブルを作成します。
 Questetra BPM Suite の「検索セレクトボックス（表示名は「検索セレクト」）」の「選択肢種別」で「HTTP 経由で取得した選択肢」を選択し、
-「選択肢データの URL」に先ほど作成した API のエンドポイントを入力します。
+「選択肢データの URL」に API のエンドポイントを入力します。
 
 ## データベースへの接続
-データベースへの接続には次の mysql コマンドを使います（コマンドの後、.tfvars ファイルで設定したマスターパスワードを入力します）。
+データベースへの接続には次の mysql コマンドを使います。コマンドの後、.tfvars ファイルで設定したマスターパスワードを入力します。
 `mysql -h {データベースのエンドポイント} -P 3306 -u admin -p`
 3306 はポート番号、admin はマスターユーザー名です。.tfvars ファイルでマスターユーザー名を設定した場合は、設定したユーザー名を使用します。
 
