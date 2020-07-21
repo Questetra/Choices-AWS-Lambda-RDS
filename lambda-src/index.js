@@ -22,8 +22,8 @@ exports.handler = async (event) => {
   }
   console.log("Starting query ...");
   try {
-    const sql = buildSql(event);
-    const results = await connection.query(sql);
+    const {sql, inserts} = buildSql(event);
+    const results = await connection.query(sql, inserts);
     const xml = buildXml(results);
     response = formatResponse(xml);
   } catch (e) {
@@ -38,16 +38,19 @@ exports.handler = async (event) => {
 };
  
 function buildSql (event) {
+  let sql = "SELECT * FROM ??";
+  let inserts = [table];
   let conditions = new Array();
   if (event.queryStringParameters && event.queryStringParameters.query) {
     const query = event.queryStringParameters.query;
-    conditions.push(`display LIKE '%${query}%'`);
+    conditions.push('display LIKE ?');
+    inserts.push(`%${query}%`);
   }
   if (event.queryStringParameters && event.queryStringParameters.parent) {
     const parentItemId = event.queryStringParameters.parent;
-    conditions.push(`value LIKE '${parentItemId}%'`);
+    conditions.push('value LIKE ?');
+    inserts.push(`${parentItemId}%`);
   }
-  let sql = `SELECT * FROM ${table}`;
   const condNum = conditions.length;
   if (condNum >= 1) {
     sql += ` WHERE ${conditions[0]}`;
@@ -56,14 +59,15 @@ function buildSql (event) {
     }
   } else if (event.multiValueQueryStringParameters && event.multiValueQueryStringParameters.values) {
     const values = event.multiValueQueryStringParameters.values;
-    let valuesStr = `'${values[0]}'`;
+    sql += " WHERE value IN (?";
     for (let i = 1; i < values.length; i++) {
-      valuesStr += `, '${values[i]}'`;
+      sql += ", ?";
     }
-    sql += ` WHERE value IN (${valuesStr})`;
+    sql += ")";
+    inserts = inserts.concat(values);
   }
   sql += ';';
-  return sql;
+  return {sql, inserts};
 }
  
 function buildXml (results) {
