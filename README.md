@@ -34,7 +34,7 @@ db_password = "password1234"
 
 次のように表示されると AWS のリソース作成は完了です。
 ```
-Apply complete! Resources: 22 added, 0 changed, 0 destroyed.
+Apply complete! Resources: 21 added, 0 changed, 0 destroyed.
 
 Outputs:
 

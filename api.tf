@@ -59,7 +59,6 @@ resource "aws_lambda_function" "myRdsFunction" {
     subnet_ids = [
       aws_subnet.subnet-a.id,
       aws_subnet.subnet-b.id,
-      aws_subnet.subnet-c.id,
     ]
   }
 }

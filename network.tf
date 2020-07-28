@@ -25,20 +25,20 @@ resource "aws_default_route_table" "rt" {
   ]
 }
 
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
 resource "aws_subnet" "subnet-a" {
+  availability_zone       = data.aws_availability_zones.available.names[0]
   cidr_block              = cidrsubnet(aws_vpc.vpc.cidr_block, 4, 0)
   vpc_id                  = aws_vpc.vpc.id
   map_public_ip_on_launch = true
 }
 
 resource "aws_subnet" "subnet-b" {
+  availability_zone       = data.aws_availability_zones.available.names[1]
   cidr_block              = cidrsubnet(aws_vpc.vpc.cidr_block, 4, 1)
-  vpc_id                  = aws_vpc.vpc.id
-  map_public_ip_on_launch = true
-}
-
-resource "aws_subnet" "subnet-c" {
-  cidr_block              = cidrsubnet(aws_vpc.vpc.cidr_block, 4, 2)
   vpc_id                  = aws_vpc.vpc.id
   map_public_ip_on_launch = true
 }

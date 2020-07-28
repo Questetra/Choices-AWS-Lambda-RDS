@@ -3,7 +3,6 @@ resource "aws_db_subnet_group" "db-subnet-group" {
   subnet_ids = [
     aws_subnet.subnet-a.id,
     aws_subnet.subnet-b.id,
-    aws_subnet.subnet-c.id,
   ]
   description = "Created for RDS cluster and Lambda"
 }
