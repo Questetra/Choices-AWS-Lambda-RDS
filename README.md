@@ -10,10 +10,10 @@ RDS Proxy は現時点では Terraform に対応していないため、RDS Prox
 
 ## 事前準備
 以下のものが必要です。
-* [Terraform クライアント](https://www.terraform.io/downloads.html)
-* [AWS クライアント](https://aws.amazon.com/cli/)
-* [npm](https://www.npmjs.com/) コマンド
-* [mysql](https://www.mysql.com/) コマンド
+* [Terraform](https://www.terraform.io/downloads.html)
+* [AWS CLI](https://aws.amazon.com/cli/)
+* [MySQL クライアント](https://www.mysql.com/) コマンド
+* [Node.js](https://nodejs.org/) / [npm](https://www.npmjs.com/) コマンド
 
 AWS の認証情報は `aws configure` コマンドで設定するか、provider.tf ファイル内の provider ブロック内に記載します（[参考](https://www.terraform.io/docs/providers/aws/index.html#static-credentials)）。
 
